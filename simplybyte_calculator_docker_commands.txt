@@ -1,0 +1,127 @@
+SIMPLYBYTE CALCULATOR PROJECT — DOCKER COMMAND HISTORY
+=====================================================
+
+Project folder (PowerShell)
+---------------------------
+cd "$HOME\Downloads\Simplybyte_calculator-main\Simplybyte_calculator-main"
+
+1. BUILD THE IMAGE
+------------------
+docker build -t calci-new .
+
+2. RUN THE CONTAINER AND TRY VOLUME MOUNTS
+------------------------------------------
+# First attempt: failed because the container name already existed
+docker run -d -p 9000:5000 -v hm:/volume --name calci-calcu calci-new
+
+# The history shows several subsequent attempts with the same container name.
+# These exact commands were entered:
+docker run -d -p 9000:5000 -v hm:/volume --name calci-calcu calci-new
+docker run -d -p 9000:5000 -v hm:/volume --name calci-calcu calci-new
+docker run -d -p 9000:5000 -vC:\Users\Madhavan.S\Downloads\hm/volume --name calci-calcu calci-new
+docker run -d -p 9000:5000 -vC:\Users\Madhavan.S\Downloads:\hm/volume --name calci-calcu calci-new
+
+# Note:
+# Docker reported a container-name conflict for calci-calcu.
+# The -v syntax in the two Windows-path attempts is malformed/ambiguous.
+# Correct named-volume syntax:
+docker volume create hm
+docker run -d -p 9000:5000 --mount source=hm,target=/volume --name calci-calcu calci-new
+
+# If calci-calcu already exists, inspect it first:
+docker ps -a
+docker inspect calci-calcu
+
+# If you intentionally want to replace that container (this removes the container,
+# but does not remove the image or named volume):
+docker rm -f calci-calcu
+docker run -d -p 9000:5000 --mount source=hm,target=/volume --name calci-calcu calci-new
+
+3. LIST AND INSPECT IMAGES
+--------------------------
+docker image
+docker images
+
+4. REMOVE IMAGE (ATTEMPTED; FAILED WHILE A CONTAINER USED IT)
+-------------------------------------------------------------
+docker rmi calci-new
+
+5. TAG IMAGE FOR DOCKER HUB
+---------------------------
+docker tag calci-new smadhavanmaddy/simplybyte_calculator-main
+
+6. PUSH IMAGE TO DOCKER HUB (SUCCESSFUL)
+----------------------------------------
+docker push smadhavanmaddy/simplybyte_calculator-main
+
+Docker Hub repository:
+https://hub.docker.com/r/smadhavanmaddy/simplybyte_calculator-main
+
+7. REMOVE LOCAL REPOSITORY TAG (SUCCESSFUL)
+-------------------------------------------
+docker rmi smadhavanmaddy/simplybyte_calculator-main
+
+8. PULL IMAGE FROM DOCKER HUB (SUCCESSFUL)
+------------------------------------------
+docker pull smadhavanmaddy/simplybyte_calculator-main
+
+9. USEFUL CHECKS FOR THE PROJECT
+--------------------------------
+# List running containers
+docker ps
+
+# List all containers, including stopped ones
+docker ps -a
+
+# List local images
+docker images
+
+# List Docker volumes
+docker volume ls
+
+# Inspect the named volume
+docker volume inspect hm
+
+# Inspect the container and its mounts
+docker inspect calci-calcu
+
+# Read container logs
+docker logs calci-calcu
+
+# Stop the container
+docker stop calci-calcu
+
+# Start an existing container
+docker start calci-calcu
+
+# Remove a container
+docker rm calci-calcu
+
+# Remove a container forcibly, if needed
+docker rm -f calci-calcu
+
+10. RUN THE IMAGE PULLED FROM DOCKER HUB
+----------------------------------------
+docker run -d -p 9000:5000 --name calci-pulled smadhavanmaddy/simplybyte_calculator-main:latest
+
+If the name calci-pulled already exists, inspect or remove it before reusing the name:
+docker ps -a
+docker rm -f calci-pulled
+
+IMPORTANT NOTES
+---------------
+- Image name: calci-new:latest
+- Container name used: calci-calcu
+- Host port: 9000
+- Container port: 5000
+- Volume name attempted: hm
+- Container mount targets attempted: /vol and /volume (the pasted commands show /volume)
+- Docker Hub image: smadhavanmaddy/simplybyte_calculator-main:latest
+- The Docker Hub push and pull both succeeded in the supplied terminal history.
+- A successful image push/pull does not transfer named-volume data; volumes must be created/mounted separately.
+- A command returning a container ID means Docker created a container; it does not by itself prove the app started correctly or the volume mount worked.
+- For a bind mount on Windows PowerShell, use a valid absolute host path and explicit syntax, for example:
+  docker run -d -p 9000:5000 --mount "type=bind,source=$HOME\Downloads\hm,target=/volume" --name calci-bind calci-new
+  Ensure the host folder exists first, and use a different container name if it is already in use.
+
+END
